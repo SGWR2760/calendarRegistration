@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>シフトカレンダー登録ツール</title>
+
+
+  <style>
+
+
+
+    .downloadElements {
+      text-align:center;
+    }
+
+    .attendanceTime {
+      display: inline-block;
+      /* padding: 0.5em 1em; */
+      text-decoration: none;
+      background: #cccccc;
+      /*ボタン色*/
+      border-color: #FFFFFF;
+      color: #FFF;
+      border-radius: 3px;
+      height: 100%;
+      width: 100%;
+    }
+
+    .download {
+
+      border-radius: 2pt;
+      /* 角丸       */
+      font-size: 12pt;
+      /* 文字サイズ */
+      text-align: center;
+      /* 文字位置   */
+      cursor: pointer;
+      /* カーソル   */
+      padding: 12px 89px;
+      /* 余白       */
+      background: #000066;
+      /* 背景色     */
+      color: #ffffff;
+      /* 文字色     */
+      line-height: 1em;
+      /* 1行の高さ  */
+      transition: .3s;
+      /* なめらか変化 */
+
+    }
+  </style>
+</head>
+
+<body>
+  <h1>シフト to Calender</h1>
+
+  <script>
+    function changeAttendanceTime(step) {
+      console.log(step);
+      // selectタグを取得する
+      var select = document.getElementById("attendanceTime" + step);
+      if (select.value == "未設定") {
+        document.getElementById("attendanceTime" + step).value = "早";
+        select.style.background = '#E64A19';
+
+      } else if (select.value == "早") {
+        document.getElementById("attendanceTime" + step).value = "遅";
+        select.style.background = '#673AB7';
+
+      } else if (select.value == "遅") {
+        document.getElementById("attendanceTime" + step).value = "中";
+        select.style.background = '#FF6F00';
+
+      } else if (select.value == "中") {
+        document.getElementById("attendanceTime" + step).value = "休";
+        select.style.background = '#689F38';
+
+      } else if (select.value == "休") {
+        document.getElementById("attendanceTime" + step).value = "有休";
+        select.style.background = '#33691E';
+
+      } else if (select.value == "有休") {
+        document.getElementById("attendanceTime" + step).value = "未設定";
+        select.style.background = '#CCCCCC';
+      }
+    }
+
+    // ------------------------------------------------------------
+    // HTMLTableElement オブジェクトを作成する
+    // ------------------------------------------------------------
+
+    var table = document.createElement("table");
+
+    // BODY のノードリストに登録する
+    document.body.appendChild(table);
+
+    var dt = new Date()
+
+    for (let step = 0; step < 30; step++) {
+      var tr0 = table.insertRow(-1);
+      tr0.height = "25px";
+
+      var td0 = tr0.insertCell(-1);
+      var td1 = tr0.insertCell(-1);
+      var td2 = tr0.insertCell(-1);
+      // var td3 = tr0.insertCell(-1);
+      // var td4 = tr0.insertCell(-1);
+      // var td5 = tr0.insertCell(-1);
+      // var td6 = tr0.insertCell(-1);
+
+      var day = step + 1;
+      var dispDay = dt.getMonth() + 1 + '/' + day;
+      var tdDay = new Date(dt.getFullYear(), dt.getMonth(), day);
+      var dayOfWeek = tdDay.getDay();
+      var dayOfWeekStr = ["日", "月", "火", "水", "木", "金", "土"][dayOfWeek];
+      td0.innerHTML = dispDay;
+      td1.innerHTML = dayOfWeekStr;
+      td2.innerHTML = '<input class="attendanceTime" type="button" value="未設定" id="attendanceTime' + step  + '" onclick="changeAttendanceTime(' + step  + ');"/>';
+      td0.width = "10%";
+      td1.width = "10%";
+      td2.width = "80%";
+
+
+      // td3.innerHTML = '<input class="attendanceTime" type="button" value="早" id="attendanceTime' + step + 200 + '" onclick="changeAttendanceTime(' + step + 200 + ');"/>';
+      // td4.innerHTML = '<input class="attendanceTime" type="button" value="早" id="attendanceTime' + step + 300 + '" onclick="changeAttendanceTime(' + step + 300 + ');"/>';
+      // td5.innerHTML = '<input class="attendanceTime" type="button" value="早" id="attendanceTime' + step + 400 + '" onclick="changeAttendanceTime(' + step + 400 + ');"/>';
+      // td6.innerHTML = '<input class="attendanceTime" type="button" value="早" id="attendanceTime' + step + 500 + '" onclick="changeAttendanceTime(' + step + 500 + ');"/>'
+
+
+    }
+
+
+
+
+
+    // ------------------------------------------------------------
+    // テーブルの設定
+    // ------------------------------------------------------------
+
+    table.id = "table";
+    // テーブルの幅を設定
+    // table.width = "100%";
+
+    // 背景カラーを設定
+    table.bgColor = "#ffffff";
+
+    // テーブルの外周線の太さを設定
+    table.border = "2";
+
+    // テーブルの外周線のルールを設定
+    table.frame = "box";
+
+    // テーブル内の線ルールを設定
+    table.rules = "all";
+
+    // セルの内周余白量を設定
+    table.cellPadding = "2";
+
+    // セルの外周余白量を設定
+    table.cellSpacing = "0";
+
+    // 概要を設定
+    table.summary = "";
+
+
+
+    function handleDownload() {
+      console.log(createCalContent);
+
+      var content = createCalContent();
+
+
+      var blob = new Blob([content], {
+        "type": "text/calender"
+      });
+
+      if (window.navigator.msSaveBlob) {
+        window.navigator.msSaveBlob(blob, "test.ics");
+        // msSaveOrOpenBlobの場合はファイルを保存せずに開ける
+        window.navigator.msSaveOrOpenBlob(blob, "test.ics");
+      } else {
+        document.getElementById("download").href = window.URL.createObjectURL(blob);
+      }
+    }
+
+    function createCalContent() {
+      var table = document.getElementById("table");
+
+
+
+      // ヘッダ
+      var contentSentence =
+        "BEGIN:VCALENDAR\n" +
+        "METHOD:PUBLISH\n" +
+        "VERSION:2.0\n" +
+        "X-WR-CALNAME:TEST\n" +
+        "X-WR-CALDESC:icsファイルから追加された予定です\n" +
+        "PRODID:-//Apple Inc.//Mac OS X 10.14.1//EN\n" +
+        "X-APPLE-CALENDAR-COLOR:#F60044\n" +
+        "X-WR-TIMEZONE:Asia/Tokyo\n" +
+        "CALSCALE:GREGORIAN\n" +
+        "BEGIN:VTIMEZONE\n" +
+        "TZID:Asia/Tokyo\n" +
+        "BEGIN:DAYLIGHT\n" +
+        "TZOFFSETFROM:+0900\n" +
+        "RRULE:FREQ=YEARLY;UNTIL=19510505T150000Z;BYMONTH=5;BYDAY=1SU\n" +
+        "DTSTART:19500507T000000\n" +
+        "TZNAME:JDT\n" +
+        "TZOFFSETTO:+1000\n" +
+        "END:DAYLIGHT\n" +
+        "BEGIN:STANDARD\n" +
+        "TZOFFSETFROM:+1000\n" +
+        "DTSTART:19510909T010000\n" +
+        "TZNAME:JST\n" +
+        "TZOFFSETTO:+0900\n" +
+        "END:STANDARD\n" +
+        "END:VTIMEZONE\n";
+
+      for (var i = 0; i < table.rows.length; i++) {
+
+        contentSentence +=
+          "BEGIN:VEVENT\n";
+
+        for (var j = 0; j < table.rows[i].cells.length; j++) {
+          if (j == 0) {
+            console.log(table.rows[i].cells[j].innerText);
+
+            // 日付の設定
+            var workType = table.rows[i].cells[j + 2].children[0].value;
+
+            if (workType == "未設定") {
+              break;
+            }
+
+            // 終日の予定
+            if (workType == "休" || workType == "有休") {
+              var outputStartDay = dateFormat(table.rows[i].cells[j].innerText);
+
+              var outputStartDate = "2020" + outputStartDay;
+              var outputEndDate = "2020" + outputStartDay;
+
+              contentSentence += "DTSTART;VALUE=DATE:" + outputStartDate + "\n" +
+                "DTEND;VALUE=DATE:" + outputEndDate + "\n";
+
+              // 時間帯指定
+            } else {
+
+              var outputStartDay = dateFormat(table.rows[i].cells[j].innerText);
+              var attendanceBegin = getAttendance(workType, 0);
+              var attendanceENd = getAttendance(workType, 1);
+
+              var outputStartDate = "2020" + outputStartDay + "T" + attendanceBegin;
+              var outputEndDate = "2020" + outputStartDay + "T" + attendanceENd;
+
+              contentSentence += "DTSTART;TZID=Asia/Tokyo:" + outputStartDate + "\n" +
+                "DTEND;TZID=Asia/Tokyo:" + outputEndDate + "\n";
+
+            }
+
+
+
+
+          } else if (j == 2) {
+
+            // サマリーの設定
+            console.log(table.rows[i].cells[j].children[0].value);
+            contentSentence += "SUMMARY:" + table.rows[i].cells[j - 2].innerText + " " + table.rows[i].cells[j].children[0].value + "\n";
+          }
+        }
+        // contentSentence += "END:VEVENT\n";
+        contentSentence += "END:VEVENT\n";
+      }
+      // フッター
+      contentSentence += "END:VCALENDAR";
+
+      return contentSentence;
+    }
+
+    function dateFormat(dateStr) {
+      var splitStr = dateStr.split('/');
+      console.log(splitStr);
+
+      dataString = zeroPadding(splitStr[0], 2) + zeroPadding(splitStr[1], 2);
+      console.log(dataString);
+
+      return dataString;
+    }
+
+    function zeroPadding(num, length) {
+      return ('0000000000' + num).slice(-length);
+    }
+
+    function getAttendance(str, int) {
+      // 始まりの時間を返す
+      if (int == 0) {
+        if (str == "早") {
+          return "100000";
+        } else if (str == "遅") {
+          return "110000";
+        } else if (str == "中") {
+          return "103000";
+        } else {
+          return "000000";
+        }
+        // 終わりの時間を返す
+      } else if (int == 1) {
+        if (str == "早") {
+          return "193000";
+        } else if (str == "遅") {
+          return "200000";
+        } else if (str == "中") {
+          return "194500";
+        } else {
+          return "235959";
+        }
+      }
+    }
+  </script>
+  <p class="downloadElements">
+    <a class="download" id="download" href="#" download="test.ics" onclick="handleDownload()">ダウンロード</a>
+  </p>
+  <div id="timeTable">
+    <table id="time">
+      <tr>
+        <th>番</th>
+        <th>開始</th>
+        <th></th>
+        <th>終了</th>
+      </tr>
+      <tr>
+        <td>早番</td>
+        <td>10:00</td>
+        <td>~</td>
+        <td>19:30</td>
+      </tr>
+      <tr>
+        <td>遅番</td>
+        <td>11:00</td>
+        <td>~</td>
+        <td>20:00</td>
+      </tr>
+      <tr>
+
+        <td>中番</td>
+        <td>10:30</td>
+        <td>~</td>
+        <td>19:45</td>
+        </th>
+    </table>
+  </div>
+
+</body>
+
+</html>
